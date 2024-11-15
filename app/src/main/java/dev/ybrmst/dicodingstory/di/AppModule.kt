@@ -22,6 +22,7 @@ annotation class MainDispatcher
 @Module
 @InstallIn(SingletonComponent::class)
 object AppModule {
+
   @Provides
   @IoDispatcher
   fun provideIoDispatcher() = Dispatchers.IO

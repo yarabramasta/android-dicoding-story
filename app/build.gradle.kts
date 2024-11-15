@@ -1,25 +1,48 @@
+import java.util.Properties
+
+//  load the values from .properties file
+val keystoreFile = rootProject.file("local.properties")
+val properties = Properties()
+if (keystoreFile.exists()) {
+  keystoreFile.inputStream().use {
+    properties.load(it)
+  }
+}
+
 plugins {
   alias(libs.plugins.android.application)
   alias(libs.plugins.kotlin.android)
   alias(libs.plugins.kotlin.compose)
   alias(libs.plugins.kotlin.serialization)
+  id("kotlin-parcelize")
   alias(libs.plugins.ksp)
   alias(libs.plugins.hilt.android)
 }
 
 android {
   namespace = "dev.ybrmst.dicodingstory"
-  compileSdk = 34
+  compileSdk = 35
 
   defaultConfig {
     applicationId = "dev.ybrmst.dicodingstory"
     minSdk = 26
     //noinspection OldTargetApi
-    targetSdk = 34
+    targetSdk = 35
     versionCode = 1
     versionName = "1.0"
 
     testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+    vectorDrawables {
+      useSupportLibrary = true
+    }
+
+    val apiBaseUrl = properties.getProperty("API_BASE_URL") ?: ""
+    buildConfigField(
+      "String",
+      "API_BASE_URL",
+      "\"${properties.getProperty("API_BASE_URL")}\""
+    )
+    manifestPlaceholders["API_BASE_URL"] = apiBaseUrl
   }
 
   buildTypes {
@@ -31,6 +54,7 @@ android {
       )
     }
   }
+
   compileOptions {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
@@ -38,7 +62,9 @@ android {
   kotlinOptions {
     jvmTarget = JavaVersion.VERSION_17.toString()
   }
+
   buildFeatures {
+    buildConfig = true
     compose = true
   }
 }
@@ -47,6 +73,8 @@ dependencies {
 
   implementation(libs.androidx.core.ktx)
   implementation(libs.androidx.lifecycle.runtime.ktx)
+  implementation(libs.androidx.lifecycle.runtime.compose)
+  implementation(libs.androidx.lifecycle.viewmodel.compose)
   implementation(libs.androidx.activity.compose)
   implementation(libs.androidx.navigation.compose)
   implementation(platform(libs.androidx.compose.bom))
@@ -55,6 +83,7 @@ dependencies {
   implementation(libs.androidx.ui.tooling.preview)
   implementation(libs.androidx.material3)
   implementation(libs.androidx.ui.text.google.fonts)
+  implementation(libs.androidx.datastore)
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)
   androidTestImplementation(libs.androidx.espresso.core)
