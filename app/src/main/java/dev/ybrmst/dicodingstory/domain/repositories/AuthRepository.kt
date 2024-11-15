@@ -1,6 +1,6 @@
 package dev.ybrmst.dicodingstory.domain.repositories
 
-import dev.ybrmst.dicodingstory.domain.entities.User
+import dev.ybrmst.dicodingstory.domain.models.User
 
 interface AuthRepository {
   suspend fun getUser(): Result<User>
@@ -15,4 +15,6 @@ interface AuthRepository {
     email: String,
     password: String,
   ): Result<Boolean>
+
+  suspend fun logout(): Result<Boolean>
 }

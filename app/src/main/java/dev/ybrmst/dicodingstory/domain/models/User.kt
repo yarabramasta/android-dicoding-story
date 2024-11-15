@@ -1,4 +1,4 @@
-package dev.ybrmst.dicodingstory.domain.entities
+package dev.ybrmst.dicodingstory.domain.models
 
 import kotlinx.serialization.Serializable
 

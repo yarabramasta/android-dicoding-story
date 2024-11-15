@@ -92,6 +92,10 @@ dependencies {
   debugImplementation(libs.androidx.ui.tooling)
   debugImplementation(libs.androidx.ui.test.manifest)
 
+  //  room
+  ksp(libs.room.compiler)
+  implementation(libs.room.ktx)
+  implementation(libs.room.runtime)
   //  hilt
   ksp(libs.hilt.compiler)
   implementation(libs.hilt.android)

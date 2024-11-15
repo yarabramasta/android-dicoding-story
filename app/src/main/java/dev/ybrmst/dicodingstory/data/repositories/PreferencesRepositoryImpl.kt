@@ -34,4 +34,15 @@ class PreferencesRepositoryImpl @Inject constructor(
       Result.failure(e)
     }
   }
+
+  override suspend fun revokeAuthToken(): Result<Boolean> {
+    return try {
+      authDataStore.edit {
+        it.remove(PreferencesKeys.AUTH_TOKEN_PREFERENCES_KEY)
+      }
+      Result.success(true)
+    } catch (e: Exception) {
+      Result.failure(e)
+    }
+  }
 }
