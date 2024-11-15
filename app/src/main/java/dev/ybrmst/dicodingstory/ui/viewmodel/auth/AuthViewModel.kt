@@ -8,9 +8,10 @@ import dev.ybrmst.dicodingstory.ui.common.UiStatus
 import dev.ybrmst.dicodingstory.ui.composables.screens.RootRoute
 import org.orbitmvi.orbit.ContainerHost
 import org.orbitmvi.orbit.viewmodel.container
+import javax.inject.Inject
 
 @HiltViewModel
-class AuthViewModel(
+class AuthViewModel @Inject constructor(
   private val getCurrentUserUseCase: GetCurrentUserUseCase,
 ) : ContainerHost<AuthState, AuthSideEffect>, ViewModel() {
 
