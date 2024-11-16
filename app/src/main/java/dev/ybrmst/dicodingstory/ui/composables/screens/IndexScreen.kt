@@ -13,9 +13,18 @@ import dev.ybrmst.dicodingstory.ui.theme.DicodingStoryTheme
 fun IndexScreen(
   modifier: Modifier = Modifier,
 ) {
-  Scaffold { innerPadding ->
+  IndexScreenContent(modifier = modifier)
+}
+
+@Composable
+private fun IndexScreenContent(
+  modifier: Modifier = Modifier,
+) {
+  Scaffold(
+    modifier = modifier.fillMaxSize()
+  ) { innerPadding ->
     Column(
-      modifier = modifier
+      modifier = Modifier
         .fillMaxSize()
         .padding(innerPadding),
       verticalArrangement = Arrangement.Center,
@@ -30,6 +39,6 @@ fun IndexScreen(
 @Composable
 private fun IndexScreenPreview() {
   DicodingStoryTheme {
-    IndexScreen()
+    IndexScreenContent()
   }
 }

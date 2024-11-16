@@ -19,7 +19,8 @@ class SignInUseCase @Inject constructor(
     val password: String,
   )
 
-  override suspend fun execute(
-    params: SignInParams,
-  ): Result<User> = repo.login(params.email, params.password)
+  override suspend fun execute(params: SignInParams) = repo.login(
+    params.email,
+    params.password
+  )
 }

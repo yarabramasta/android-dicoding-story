@@ -8,10 +8,9 @@ import dagger.hilt.components.SingletonComponent
 import dev.ybrmst.dicodingstory.BuildConfig
 import dev.ybrmst.dicodingstory.data.network.auth.services.AuthService
 import dev.ybrmst.dicodingstory.domain.repositories.PreferencesRepository
+import dev.ybrmst.dicodingstory.lib.http.interceptors.AuthTokenInterceptor
 import kotlinx.coroutines.CoroutineDispatcher
-import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
-import okhttp3.Interceptor
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -26,7 +25,7 @@ object NetworkDataModule {
 
   @Provides
   @Singleton
-  fun provideLoggingInterceptor(): Interceptor {
+  fun provideLoggingInterceptor(): HttpLoggingInterceptor {
     return HttpLoggingInterceptor().apply {
       level = HttpLoggingInterceptor.Level.BODY
     }
@@ -37,28 +36,16 @@ object NetworkDataModule {
   fun provideAuthTokenInterceptor(
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
     prefsRepo: PreferencesRepository,
-  ): Interceptor {
-    return Interceptor { chain ->
-      val token: String? = runBlocking(
-        context = ioDispatcher
-      ) { prefsRepo.getAuthToken().getOrNull() }
-
-      var request = chain.request()
-      if (token != null) {
-        request = request.newBuilder()
-          .addHeader("Authorization", "Bearer $token")
-          .build()
-      }
-
-      chain.proceed(request)
-    }
-  }
+  ): AuthTokenInterceptor = AuthTokenInterceptor(
+    dispatcher = ioDispatcher,
+    repo = prefsRepo
+  )
 
   @Provides
   @Singleton
   fun provideOkHttpClient(
-    loggingInterceptor: Interceptor,
-    authTokenInterceptor: Interceptor,
+    loggingInterceptor: HttpLoggingInterceptor,
+    authTokenInterceptor: AuthTokenInterceptor,
   ): OkHttpClient {
     return OkHttpClient.Builder()
       .connectTimeout(10, TimeUnit.SECONDS)

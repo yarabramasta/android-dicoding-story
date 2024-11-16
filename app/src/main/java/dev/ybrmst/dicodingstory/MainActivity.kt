@@ -1,20 +1,23 @@
 package dev.ybrmst.dicodingstory
 
 import android.os.Bundle
-import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.ui.platform.LocalContext
+import androidx.compose.foundation.layout.Box
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.*
 import dagger.hilt.android.AndroidEntryPoint
+import dev.ybrmst.dicodingstory.ui.common.UiStatus
 import dev.ybrmst.dicodingstory.ui.common.scopedViewModel
 import dev.ybrmst.dicodingstory.ui.composables.screens.*
 import dev.ybrmst.dicodingstory.ui.theme.DicodingStoryTheme
 import dev.ybrmst.dicodingstory.ui.viewmodel.auth.AuthSideEffect
 import dev.ybrmst.dicodingstory.ui.viewmodel.auth.AuthViewModel
+import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @AndroidEntryPoint
@@ -27,6 +30,7 @@ class MainActivity : ComponentActivity() {
     setContent {
       DicodingStoryTheme {
         val navController = rememberNavController()
+
         NavHost(navController, startDestination = RootRoute.Index) {
           addInit(navController)
           addOnboarding(navController)
@@ -42,7 +46,7 @@ class MainActivity : ComponentActivity() {
 private fun NavGraphBuilder.addInit(navController: NavController) {
   composable<RootRoute.Index> {
     val viewModel: AuthViewModel = it.scopedViewModel(navController)
-    val context = LocalContext.current
+    val state by viewModel.collectAsState()
 
     viewModel.collectSideEffect { effect ->
       when (effect) {
@@ -51,10 +55,15 @@ private fun NavGraphBuilder.addInit(navController: NavController) {
             popUpTo(RootRoute.Index) { inclusive = true }
           }
         }
+      }
+    }
 
-        is AuthSideEffect.ShowToast -> {
-          Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
-        }
+    LaunchedEffect(Unit) {
+      if (state.status !is UiStatus.Loading) {
+        viewModel.redirect(
+          if (state.user != null) RootRoute.Home
+          else RootRoute.Onboarding
+        )
       }
     }
 
@@ -99,9 +108,15 @@ private fun NavGraphBuilder.addSignUp(navController: NavController) {
   }
 }
 
-@Suppress("UNUSED_PARAMETER")
 private fun NavGraphBuilder.addHome(navController: NavController) {
   composable<RootRoute.Home> {
-    HomeScreen()
+    val viewModel: AuthViewModel = it.scopedViewModel(navController)
+    val state by viewModel.collectAsState()
+
+    if (state.user != null) {
+      HomeScreen(user = state.user!!)
+    } else {
+      Box { }
+    }
   }
 }

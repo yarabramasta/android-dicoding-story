@@ -4,11 +4,11 @@ import android.util.Log
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 
-abstract class UseCase<in Params, Success>(
+abstract class UseCase<in Params, Data>(
   private val dispatcher: CoroutineDispatcher,
 ) {
 
-  suspend operator fun invoke(params: Params): Result<Success> {
+  suspend operator fun invoke(params: Params): Pair<Data?, Throwable?> {
     return try {
       withContext(dispatcher) {
         execute(params)
@@ -19,9 +19,9 @@ abstract class UseCase<in Params, Success>(
         "An error occurred while executing use case.",
         ex
       )
-      Result.failure(ex)
+      null to ex
     }
   }
 
-  protected abstract suspend fun execute(params: Params): Result<Success>
+  protected abstract suspend fun execute(params: Params): Pair<Data?, Throwable?>
 }

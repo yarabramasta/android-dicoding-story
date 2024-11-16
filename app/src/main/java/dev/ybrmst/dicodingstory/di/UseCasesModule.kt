@@ -45,10 +45,10 @@ object UseCasesModule {
 
   @Provides
   @Singleton
-  fun provideGetCurrentUserUseCase(
+  fun provideGetUserUseCase(
     @IoDispatcher ioDispatcher: CoroutineDispatcher,
     authRepository: AuthRepository,
-  ): GetCurrentUserUseCase = GetCurrentUserUseCase(
+  ): GetUserUseCase = GetUserUseCase(
     dispatcher = ioDispatcher,
     repo = authRepository
   )

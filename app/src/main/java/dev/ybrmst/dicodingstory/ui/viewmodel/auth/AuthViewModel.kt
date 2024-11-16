@@ -1,8 +1,9 @@
 package dev.ybrmst.dicodingstory.ui.viewmodel.auth
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dev.ybrmst.dicodingstory.domain.business.auth.GetCurrentUserUseCase
+import dev.ybrmst.dicodingstory.domain.business.auth.GetUserUseCase
 import dev.ybrmst.dicodingstory.domain.models.User
 import dev.ybrmst.dicodingstory.ui.common.UiStatus
 import dev.ybrmst.dicodingstory.ui.composables.screens.RootRoute
@@ -12,54 +13,44 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-  private val getCurrentUserUseCase: GetCurrentUserUseCase,
-) : ContainerHost<AuthState, AuthSideEffect>, ViewModel() {
+  savedStateHandle: SavedStateHandle,
+  private val getUserUseCase: GetUserUseCase,
+) : ViewModel(), ContainerHost<AuthState, AuthSideEffect> {
 
   override val container = container<AuthState, AuthSideEffect>(
-    AuthState.initial()
-  )
-
-  init {
-    intent {
-      fetchCurrentUser()
-    }
+    AuthState.initial(),
+    savedStateHandle = savedStateHandle
+  ) {
+    fetchUser()
   }
 
-
-  /**
-   * WARNING: Should only be used in another view model e.g. [LoginViewModel]
-   */
-  fun update(user: User?) {
-    intent {
-      reduce { state.copy(user = user) }
-    }
+  fun update(user: User?) = intent {
+    reduce { state.copy(user = user) }
   }
 
-  private fun fetchCurrentUser() {
-    intent {
-      reduce { state.copy(status = UiStatus.Loading) }
-      getCurrentUserUseCase(Unit)
-        .fold(
-          onFailure = {
-            val message = it.message ?: "Something went wrong..."
-            reduce {
-              state.copy(
-                status = UiStatus.Failed(message),
-                user = null
-              )
-            }
-            postSideEffect(AuthSideEffect.ShowToast(message))
-          },
-          onSuccess = { currentUser ->
-            reduce { state.copy(status = UiStatus.Success, user = currentUser) }
-            postSideEffect(
-              AuthSideEffect.NavigateToNext(
-                if (currentUser != null) RootRoute.Home
-                else RootRoute.Onboarding
-              )
-            )
-          }
+  fun redirect(route: RootRoute) = intent {
+    postSideEffect(AuthSideEffect.NavigateToNext(route))
+  }
+
+  private fun fetchUser() = intent(registerIdling = false) {
+    reduce { state.copy(status = UiStatus.Loading) }
+    val (user, ex) = getUserUseCase(Unit)
+
+    if (ex != null) {
+      reduce {
+        state.copy(
+          status = UiStatus.Failed(ex.message ?: "Something went wrong..."),
+          user = null
         )
+      }
+      return@intent
+    }
+
+    reduce {
+      state.copy(
+        status = UiStatus.Success,
+        user = user
+      )
     }
   }
 }
