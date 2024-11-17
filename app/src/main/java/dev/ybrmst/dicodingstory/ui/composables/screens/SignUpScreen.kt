@@ -17,14 +17,19 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import dev.ybrmst.dicodingstory.ui.common.keyboardAsState
 import dev.ybrmst.dicodingstory.ui.theme.DicodingStoryTheme
+import dev.ybrmst.dicodingstory.ui.viewmodel.signup.SignUpState
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SignUpScreen(
   modifier: Modifier = Modifier,
+  state: SignUpState,
   onBack: () -> Unit,
   onSignUp: () -> Unit,
   onNavigateToSignIn: () -> Unit,
+  onNameInputChanged: (String) -> Unit,
+  onEmailInputChanged: (String) -> Unit,
+  onPasswordInputChanged: (String) -> Unit,
 ) {
   val isKeyboardOpen by keyboardAsState()
   BackHandler(enabled = !isKeyboardOpen) {
@@ -115,9 +120,13 @@ private fun NavigateToSignInText(
 private fun SignUpScreenPreview() {
   DicodingStoryTheme {
     SignUpScreen(
+      state = SignUpState.initial(),
       onBack = {},
       onSignUp = {},
-      onNavigateToSignIn = {}
+      onNavigateToSignIn = {},
+      onNameInputChanged = {},
+      onEmailInputChanged = {},
+      onPasswordInputChanged = {},
     )
   }
 }

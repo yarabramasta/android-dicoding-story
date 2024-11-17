@@ -1,6 +1,7 @@
 package dev.ybrmst.dicodingstory
 
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -8,6 +9,7 @@ import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.*
@@ -18,6 +20,8 @@ import dev.ybrmst.dicodingstory.ui.composables.screens.*
 import dev.ybrmst.dicodingstory.ui.theme.DicodingStoryTheme
 import dev.ybrmst.dicodingstory.ui.viewmodel.auth.AuthSideEffect
 import dev.ybrmst.dicodingstory.ui.viewmodel.auth.AuthViewModel
+import dev.ybrmst.dicodingstory.ui.viewmodel.signup.SignUpSideEffect
+import dev.ybrmst.dicodingstory.ui.viewmodel.signup.SignUpViewModel
 import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
@@ -112,7 +116,24 @@ private fun NavGraphBuilder.addSignIn(navController: NavController) {
 
 private fun NavGraphBuilder.addSignUp(navController: NavController) {
   composable<RootRoute.SignUp> {
+    val viewModel = it.scopedViewModel<SignUpViewModel>(navController)
+    val state by viewModel.collectAsState()
+    val context = LocalContext.current
+
+    viewModel.collectSideEffect { effect ->
+      when (effect) {
+        is SignUpSideEffect.OnSuccessNavigate -> {
+          navController.navigate(RootRoute.SignIn)
+        }
+
+        is SignUpSideEffect.ShowMessage -> {
+          Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+        }
+      }
+    }
+
     SignUpScreen(
+      state = state,
       onBack = {
         navController.navigate(RootRoute.Onboarding) {
           popUpTo(RootRoute.Onboarding) { inclusive = true }
@@ -123,9 +144,10 @@ private fun NavGraphBuilder.addSignUp(navController: NavController) {
           popUpTo(RootRoute.Onboarding) { inclusive = true }
         }
       },
-      onSignUp = {
-        navController.navigate(RootRoute.Home)
-      },
+      onNameInputChanged = viewModel::onNameChanged,
+      onEmailInputChanged = viewModel::onEmailChanged,
+      onPasswordInputChanged = viewModel::onPasswordChanged,
+      onSignUp = viewModel::onSubmit,
     )
   }
 }

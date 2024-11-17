@@ -8,17 +8,16 @@ import dev.ybrmst.dicodingstory.domain.repositories.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Inject
 
+@Immutable
+class SignInParams(
+  val email: String,
+  val password: String,
+)
+
 class SignInUseCase @Inject constructor(
   @IoDispatcher private val dispatcher: CoroutineDispatcher,
   private val repo: AuthRepository,
-) : UseCase<SignInUseCase.SignInParams, User>(dispatcher) {
-
-  @Immutable
-  inner class SignInParams(
-    val email: String,
-    val password: String,
-  )
-
+) : UseCase<SignInParams, User>(dispatcher) {
   override suspend fun execute(params: SignInParams) = repo.login(
     params.email,
     params.password
