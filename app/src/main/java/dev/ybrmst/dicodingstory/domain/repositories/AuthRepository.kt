@@ -1,21 +1,20 @@
 package dev.ybrmst.dicodingstory.domain.repositories
 
-import dev.ybrmst.dicodingstory.domain.errors.AuthError
 import dev.ybrmst.dicodingstory.domain.models.User
 
 interface AuthRepository {
-  suspend fun getUser(): User?
+  suspend fun getUser(): Result<User?>
 
   suspend fun login(
     email: String,
     password: String,
-  ): Pair<User?, AuthError?>
+  ): Result<User>
 
   suspend fun register(
     name: String,
     email: String,
     password: String,
-  ): Pair<Unit, AuthError?>
+  ): Result<Unit>
 
-  suspend fun logout(): Pair<Unit, AuthError?>
+  suspend fun logout(): Result<Unit>
 }

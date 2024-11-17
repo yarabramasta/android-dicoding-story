@@ -13,7 +13,7 @@ import dev.ybrmst.dicodingstory.ui.theme.DicodingStoryTheme
 @Composable
 fun HomeScreen(
   modifier: Modifier = Modifier,
-  user: User,
+  user: User?,
 ) {
   Scaffold { innerPadding ->
     Column(
@@ -23,7 +23,7 @@ fun HomeScreen(
       verticalArrangement = Arrangement.Center,
       horizontalAlignment = Alignment.CenterHorizontally
     ) {
-      Text(text = "Hello, ${user.name}!")
+      Text(text = "Hello, ${user?.name}!")
     }
   }
 }

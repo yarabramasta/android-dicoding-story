@@ -12,5 +12,7 @@ class GetUserUseCase @Inject constructor(
   private val repo: AuthRepository,
 ) : UseCase<Unit, User?>(dispatcher) {
 
-  override suspend fun execute(params: Unit) = repo.getUser() to null
+  override suspend fun execute(
+    params: Unit,
+  ) = Result.success(repo.getUser().getOrNull())
 }

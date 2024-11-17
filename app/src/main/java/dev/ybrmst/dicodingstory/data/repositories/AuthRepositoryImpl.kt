@@ -19,24 +19,26 @@ class AuthRepositoryImpl @Inject constructor(
   private val sessionDao: SessionDao,
 ) : AuthRepository {
 
-  override suspend fun getUser(): User? {
-    prefsRepo.getAuthToken() ?: return null
+  override suspend fun getUser(): Result<User?> {
+    if (prefsRepo.getAuthToken() == null) {
+      return Result.success(null)
+    }
 
     val session = sessionDao.getSessions().lastOrNull()?.firstOrNull()
     if (session == null) {
       prefsRepo.revokeAuthToken()
-      return null
+      return Result.success(null)
     }
 
     val user = User(session.userId, session.name)
-    return user
+    return Result.success(user)
   }
 
   override suspend fun login(
     email: String,
     password: String,
-  ): Pair<User?, AuthError?> {
-    var result: Pair<User?, AuthError?> = null to AuthError.BadRequestLogin()
+  ): Result<User> {
+    var result: Result<User> = Result.failure(AuthError.BadRequestLogin())
 
     authService.login(email, password)
       .suspendOnSuccess {
@@ -46,12 +48,12 @@ class AuthRepositoryImpl @Inject constructor(
         prefsRepo.setAuthToken(data.loginResult.token)
         sessionDao.saveSession(session)
 
-        result = user to null
+        result = Result.success(user)
       }
       .suspendOnError {
         val statusCode = (payload as? Response<*>)?.code() ?: 500
         result = when (statusCode) {
-          400 -> null to AuthError.InvalidCredentials()
+          400 -> Result.failure(AuthError.InvalidCredentials())
           else -> result
         }
       }
@@ -63,15 +65,15 @@ class AuthRepositoryImpl @Inject constructor(
     name: String,
     email: String,
     password: String,
-  ): Pair<Unit, AuthError?> {
-    var result: Pair<Unit, AuthError?> = Unit to AuthError.BadRequestRegister()
+  ): Result<Unit> {
+    var result: Result<Unit> = Result.failure(AuthError.BadRequestRegister())
 
     authService.register(name, email, password)
-      .suspendOnSuccess { result = Unit to null }
+      .suspendOnSuccess { result = Result.success(Unit) }
       .suspendOnError {
         val statusCode = (payload as? Response<*>)?.code() ?: 500
         result = when (statusCode) {
-          400 -> Unit to AuthError.DuplicatedCredentials()
+          400 -> Result.failure(AuthError.DuplicatedCredentials())
           else -> result
         }
       }
@@ -79,9 +81,9 @@ class AuthRepositoryImpl @Inject constructor(
     return result
   }
 
-  override suspend fun logout(): Pair<Unit, AuthError?> {
+  override suspend fun logout(): Result<Unit> {
     prefsRepo.revokeAuthToken()
     sessionDao.revokeSessions()
-    return Unit to null
+    return Result.success(Unit)
   }
 }

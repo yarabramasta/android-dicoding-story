@@ -3,7 +3,6 @@ package dev.ybrmst.dicodingstory.domain.business.auth
 import androidx.compose.runtime.Immutable
 import dev.ybrmst.dicodingstory.di.IoDispatcher
 import dev.ybrmst.dicodingstory.domain.business.common.UseCase
-import dev.ybrmst.dicodingstory.domain.errors.AuthError
 import dev.ybrmst.dicodingstory.domain.repositories.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import javax.inject.Inject
@@ -22,9 +21,9 @@ class SignUpUseCase @Inject constructor(
 
   override suspend fun execute(
     params: SignUpParams,
-  ): Pair<Boolean, AuthError?> = repo.register(
+  ): Result<Boolean> = repo.register(
     params.email,
     params.password,
     params.name
-  ).let { (_, ex) -> false to ex }
+  ).mapCatching { true }
 }

@@ -4,7 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
@@ -31,7 +32,12 @@ class MainActivity : ComponentActivity() {
       DicodingStoryTheme {
         val navController = rememberNavController()
 
-        NavHost(navController, startDestination = RootRoute.Index) {
+        NavHost(
+          navController,
+          startDestination = RootRoute.Index,
+          enterTransition = { EnterTransition.None },
+          exitTransition = { ExitTransition.None }
+        ) {
           addInit(navController)
           addOnboarding(navController)
           addSignIn(navController)
@@ -58,7 +64,7 @@ private fun NavGraphBuilder.addInit(navController: NavController) {
       }
     }
 
-    LaunchedEffect(Unit) {
+    LaunchedEffect(state.status) {
       if (state.status !is UiStatus.Loading) {
         viewModel.redirect(
           if (state.user != null) RootRoute.Home
@@ -91,7 +97,15 @@ private fun NavGraphBuilder.addSignIn(navController: NavController) {
         navController.navigate(RootRoute.Onboarding) {
           popUpTo(RootRoute.Onboarding) { inclusive = true }
         }
-      }
+      },
+      onNavigateToSignUp = {
+        navController.navigate(RootRoute.SignUp) {
+          popUpTo(RootRoute.Onboarding) { inclusive = true }
+        }
+      },
+      onSignIn = {
+        navController.navigate(RootRoute.Home)
+      },
     )
   }
 }
@@ -103,7 +117,15 @@ private fun NavGraphBuilder.addSignUp(navController: NavController) {
         navController.navigate(RootRoute.Onboarding) {
           popUpTo(RootRoute.Onboarding) { inclusive = true }
         }
-      }
+      },
+      onNavigateToSignIn = {
+        navController.navigate(RootRoute.SignUp) {
+          popUpTo(RootRoute.Onboarding) { inclusive = true }
+        }
+      },
+      onSignUp = {
+        navController.navigate(RootRoute.Home)
+      },
     )
   }
 }
@@ -113,10 +135,6 @@ private fun NavGraphBuilder.addHome(navController: NavController) {
     val viewModel: AuthViewModel = it.scopedViewModel(navController)
     val state by viewModel.collectAsState()
 
-    if (state.user != null) {
-      HomeScreen(user = state.user!!)
-    } else {
-      Box { }
-    }
+    HomeScreen(user = state.user)
   }
 }

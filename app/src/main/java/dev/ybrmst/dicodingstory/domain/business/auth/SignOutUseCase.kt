@@ -11,6 +11,12 @@ class SignOutUseCase @Inject constructor(
   private val repo: AuthRepository,
 ) : UseCase<Unit, Boolean>(dispatcher) {
 
-  override suspend fun execute(params: Unit) = repo.logout()
-    .let { (_, ex) -> true to ex }
+  override suspend fun execute(
+    params: Unit,
+  ) = Result.success(
+    repo.logout().fold(
+      onFailure = { false },
+      onSuccess = { true }
+    ),
+  )
 }
