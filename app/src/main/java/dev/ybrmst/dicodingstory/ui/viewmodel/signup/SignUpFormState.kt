@@ -2,6 +2,7 @@ package dev.ybrmst.dicodingstory.ui.viewmodel.signup
 
 import android.util.Patterns
 import androidx.compose.runtime.Immutable
+import dev.ybrmst.dicodingstory.R
 
 @Immutable
 data class SignUpFormState(
@@ -24,24 +25,24 @@ data class SignUpFormState(
   }
 
   fun validateEmail(): String {
-    if (email.isEmpty()) return "Email must not be empty."
+    if (email.isEmpty()) return R.string.err_form_email_empty.toString()
     if (
       Patterns.EMAIL_ADDRESS
         .matcher(email)
         .matches()
-    ) return "Please use a valid email address."
+    ) return R.string.err_form_email_invalid.toString()
     return ""
   }
 
   fun validatePassword(): String {
-    if (password.isEmpty()) return "Password must not be empty."
-    if (password.length < 8) return "Password must be at least 8 characters."
+    if (password.isEmpty()) return R.string.err_form_pass_empty.toString()
+    if (password.length < 8) return R.string.err_form_pass_invalid.toString()
     return ""
   }
 
   fun validateName(): String {
-    if (name.isEmpty()) return "Name must not be empty."
-    if (name.length < 2) return "Name must be at least 2 characters."
+    if (name.isEmpty()) return R.string.err_form_name_empty.toString()
+    if (name.length < 2) return R.string.err_form_name_invalid.toString()
     return ""
   }
 

@@ -10,7 +10,7 @@ data class SignUpState(
 ) {
   companion object {
     fun initial() = SignUpState(
-      status = UiStatus.Success,
+      status = UiStatus.Idle,
       form = SignUpFormState.initial()
     )
   }

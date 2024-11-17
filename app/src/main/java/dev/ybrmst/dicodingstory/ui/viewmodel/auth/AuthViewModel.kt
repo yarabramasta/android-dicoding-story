@@ -3,6 +3,7 @@ package dev.ybrmst.dicodingstory.ui.viewmodel.auth
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.ybrmst.dicodingstory.R
 import dev.ybrmst.dicodingstory.domain.business.auth.GetUserUseCase
 import dev.ybrmst.dicodingstory.domain.models.User
 import dev.ybrmst.dicodingstory.ui.common.UiStatus
@@ -41,7 +42,8 @@ class AuthViewModel @Inject constructor(
       container.scope.launch {
         getUserUseCase(Unit).fold(
           onFailure = { ex ->
-            val message = ex.message ?: "Something went wrong..."
+            val message =
+              ex.message ?: R.string.err_general_trouble.toString()
             reduce {
               state.copy(
                 status = UiStatus.Failed(message),

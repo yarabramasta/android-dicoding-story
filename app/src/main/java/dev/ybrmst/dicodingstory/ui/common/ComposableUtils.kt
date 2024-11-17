@@ -1,5 +1,6 @@
 package dev.ybrmst.dicodingstory.ui.common
 
+import android.content.Context
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
 import androidx.compose.runtime.*
@@ -13,16 +14,10 @@ import androidx.navigation.NavController
 inline fun <reified T : ViewModel> NavBackStackEntry.scopedViewModel(
   navController: NavController,
 ): T {
-  // if the destination route doesn't have a parent create a brand
-  // new view model instance
   val navGraphRoute = destination.parent?.route ?: return hiltViewModel()
-
-  // the destination does have a parent screen
   val parentEntry: NavBackStackEntry = remember(this) {
     navController.getBackStackEntry(navGraphRoute)
   }
-
-  // return the view model associated with the parent destination
   return hiltViewModel(parentEntry)
 }
 
@@ -30,4 +25,9 @@ inline fun <reified T : ViewModel> NavBackStackEntry.scopedViewModel(
 fun keyboardAsState(): State<Boolean> {
   val isImeVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
   return rememberUpdatedState(isImeVisible)
+}
+
+fun getLocalizedString(context: Context, strResId: String): String {
+  val resId = strResId.toIntOrNull() ?: return ""
+  return context.getString(resId)
 }

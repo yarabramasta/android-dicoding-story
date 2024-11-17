@@ -36,6 +36,8 @@ android {
       useSupportLibrary = true
     }
 
+    resourceConfigurations += listOf("en", "in")
+
     val apiBaseUrl = properties.getProperty("API_BASE_URL") ?: ""
     buildConfigField(
       "String",
@@ -84,6 +86,8 @@ dependencies {
   implementation(libs.androidx.material3)
   implementation(libs.androidx.ui.text.google.fonts)
   implementation(libs.androidx.datastore)
+  implementation(libs.androidx.appcompat)
+  implementation(libs.androidx.appcompat.resources)
   testImplementation(libs.junit)
   androidTestImplementation(libs.androidx.junit)
   androidTestImplementation(libs.androidx.espresso.core)

@@ -2,9 +2,9 @@ package dev.ybrmst.dicodingstory
 
 import android.os.Bundle
 import android.widget.Toast
-import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.LaunchedEffect
@@ -14,8 +14,7 @@ import androidx.navigation.NavController
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.compose.*
 import dagger.hilt.android.AndroidEntryPoint
-import dev.ybrmst.dicodingstory.ui.common.UiStatus
-import dev.ybrmst.dicodingstory.ui.common.scopedViewModel
+import dev.ybrmst.dicodingstory.ui.common.*
 import dev.ybrmst.dicodingstory.ui.composables.screens.*
 import dev.ybrmst.dicodingstory.ui.theme.DicodingStoryTheme
 import dev.ybrmst.dicodingstory.ui.viewmodel.auth.AuthSideEffect
@@ -26,7 +25,7 @@ import org.orbitmvi.orbit.compose.collectAsState
 import org.orbitmvi.orbit.compose.collectSideEffect
 
 @AndroidEntryPoint
-class MainActivity : ComponentActivity() {
+class MainActivity : AppCompatActivity() {
 
   override fun onCreate(savedInstanceState: Bundle?) {
     super.onCreate(savedInstanceState)
@@ -127,7 +126,11 @@ private fun NavGraphBuilder.addSignUp(navController: NavController) {
         }
 
         is SignUpSideEffect.ShowMessage -> {
-          Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+          Toast.makeText(
+            context,
+            getLocalizedString(context, effect.message),
+            Toast.LENGTH_SHORT
+          ).show()
         }
       }
     }

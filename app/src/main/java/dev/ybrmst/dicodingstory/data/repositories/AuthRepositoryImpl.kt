@@ -38,7 +38,7 @@ class AuthRepositoryImpl @Inject constructor(
     email: String,
     password: String,
   ): Result<User> {
-    var result: Result<User> = Result.failure(AuthError.BadRequestLogin())
+    var result: Result<User> = Result.failure(AuthError.BadRequestSignIn())
 
     authService.login(email, password)
       .suspendOnSuccess {
@@ -66,7 +66,7 @@ class AuthRepositoryImpl @Inject constructor(
     email: String,
     password: String,
   ): Result<Unit> {
-    var result: Result<Unit> = Result.failure(AuthError.BadRequestRegister())
+    var result: Result<Unit> = Result.failure(AuthError.BadRequestSignUp())
 
     authService.register(name, email, password)
       .suspendOnSuccess { result = Result.success(Unit) }

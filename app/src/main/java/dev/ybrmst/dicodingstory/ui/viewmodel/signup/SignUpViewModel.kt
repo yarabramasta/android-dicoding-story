@@ -3,6 +3,7 @@ package dev.ybrmst.dicodingstory.ui.viewmodel.signup
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dev.ybrmst.dicodingstory.R
 import dev.ybrmst.dicodingstory.domain.business.auth.SignInParams
 import dev.ybrmst.dicodingstory.domain.business.auth.SignInUseCase
 import dev.ybrmst.dicodingstory.ui.common.UiStatus
@@ -26,7 +27,10 @@ class SignUpViewModel @Inject constructor(
     intent {
       reduce {
         state.copy(
-          form = state.form.copy(name = name)
+          form = state.form.copy(
+            name = name,
+            nameError = state.form.validateName()
+          )
         )
       }
     }
@@ -36,7 +40,10 @@ class SignUpViewModel @Inject constructor(
     intent {
       reduce {
         state.copy(
-          form = state.form.copy(email = email)
+          form = state.form.copy(
+            email = email,
+            emailError = state.form.validateEmail()
+          )
         )
       }
     }
@@ -46,20 +53,9 @@ class SignUpViewModel @Inject constructor(
     intent {
       reduce {
         state.copy(
-          form = state.form.copy(password = password)
-        )
-      }
-    }
-  }
-
-  private fun validateForm() {
-    intent {
-      reduce {
-        state.copy(
           form = state.form.copy(
-            emailError = state.form.validateEmail(),
-            passwordError = state.form.validatePassword(),
-            nameError = state.form.validateName()
+            password = password,
+            passwordError = state.form.validatePassword()
           )
         )
       }
@@ -67,8 +63,6 @@ class SignUpViewModel @Inject constructor(
   }
 
   fun onSubmit() {
-    validateForm()
-
     intent {
       if (state.form.isValid) {
         reduce { state.copy(status = UiStatus.Loading) }
@@ -89,14 +83,11 @@ class SignUpViewModel @Inject constructor(
               }
               postSideEffect(SignUpSideEffect.OnSuccessNavigate)
               postSideEffect(
-                SignUpSideEffect.ShowMessage(
-                  "Your account successfully created. Please sign in to continue."
-                )
+                SignUpSideEffect.ShowMessage(R.string.signup_success.toString())
               )
             },
             onFailure = {
-              val message =
-                it.message ?: "Failed to create account. Please try again."
+              val message = it.message ?: R.string.err_signup_trouble.toString()
               reduce { state.copy(status = UiStatus.Failed()) }
               postSideEffect(SignUpSideEffect.ShowMessage(message))
             }
